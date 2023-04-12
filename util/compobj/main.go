@@ -54,6 +54,8 @@ var (
 	reWildcardShortHostname = regexp.MustCompile(`%%SHORT_HOSTNAME%%`)
 	reWildcardEnvVar1       = regexp.MustCompile(`%%ENV:.+%%`)
 	reWildcardEnvVar2       = regexp.MustCompile(`(%%ENV:)(.+)(%%)`)
+
+	osName = os.Getenv("OSVC_COMP_NODES_OS_NAME")
 )
 
 func (t ExitCode) Exit() {

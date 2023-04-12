@@ -9,9 +9,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/opensvc/om3/util/command"
 	"github.com/opensvc/om3/util/xmap"
+	"github.com/pkg/errors"
 )
 
 type (
@@ -60,7 +60,6 @@ var (
 	packages = map[string]interface{}{}
 	hasItMap = map[string]bool{}
 	osVendor = os.Getenv("OSVC_COMP_NODES_OS_VENDOR")
-	osName   = os.Getenv("OSVC_COMP_NODES_OS_NAME")
 )
 
 func init() {
