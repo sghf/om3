@@ -183,9 +183,6 @@ type ClientInterface interface {
 	// PostNodeActionPushDisk request
 	PostNodeActionPushDisk(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushDiskParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostNodeActionPushPatch request
-	PostNodeActionPushPatch(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushPatchParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// PostNodeActionPushPkg request
 	PostNodeActionPushPkg(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushPkgParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -410,9 +407,6 @@ type ClientInterface interface {
 
 	// GetNodeSystemPackage request
 	GetNodeSystemPackage(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetNodeSystemPatch request
-	GetNodeSystemPatch(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetNodeSystemProperty request
 	GetNodeSystemProperty(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -926,18 +920,6 @@ func (c *Client) PostNodeActionPushAsset(ctx context.Context, nodename InPathNod
 
 func (c *Client) PostNodeActionPushDisk(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushDiskParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPostNodeActionPushDiskRequest(c.Server, nodename, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PostNodeActionPushPatch(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushPatchParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostNodeActionPushPatchRequest(c.Server, nodename, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1850,18 +1832,6 @@ func (c *Client) GetNodeSystemIPAddress(ctx context.Context, nodename InPathNode
 
 func (c *Client) GetNodeSystemPackage(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetNodeSystemPackageRequest(c.Server, nodename)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetNodeSystemPatch(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNodeSystemPatchRequest(c.Server, nodename)
 	if err != nil {
 		return nil, err
 	}
@@ -3903,62 +3873,6 @@ func NewPostNodeActionPushDiskRequest(server string, nodename InPathNodeName, pa
 	}
 
 	operationPath := fmt.Sprintf("/api/node/name/%s/action/push/disk", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.RequesterSid != nil {
-
-			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "requester_sid", *params.RequesterSid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "string", Format: "uuid"}); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewPostNodeActionPushPatchRequest generates requests for PostNodeActionPushPatch
-func NewPostNodeActionPushPatchRequest(server string, nodename InPathNodeName, params *PostNodeActionPushPatchParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "nodename", nodename, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/node/name/%s/action/push/patch", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -10122,40 +10036,6 @@ func NewGetNodeSystemPackageRequest(server string, nodename InPathNodeName) (*ht
 	return req, nil
 }
 
-// NewGetNodeSystemPatchRequest generates requests for GetNodeSystemPatch
-func NewGetNodeSystemPatchRequest(server string, nodename InPathNodeName) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "nodename", nodename, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/api/node/name/%s/system/patch", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewGetNodeSystemPropertyRequest generates requests for GetNodeSystemProperty
 func NewGetNodeSystemPropertyRequest(server string, nodename InPathNodeName) (*http.Request, error) {
 	var err error
@@ -12760,9 +12640,6 @@ type ClientWithResponsesInterface interface {
 	// PostNodeActionPushDiskWithResponse request
 	PostNodeActionPushDiskWithResponse(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushDiskParams, reqEditors ...RequestEditorFn) (*PostNodeActionPushDiskResponse, error)
 
-	// PostNodeActionPushPatchWithResponse request
-	PostNodeActionPushPatchWithResponse(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushPatchParams, reqEditors ...RequestEditorFn) (*PostNodeActionPushPatchResponse, error)
-
 	// PostNodeActionPushPkgWithResponse request
 	PostNodeActionPushPkgWithResponse(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushPkgParams, reqEditors ...RequestEditorFn) (*PostNodeActionPushPkgResponse, error)
 
@@ -12987,9 +12864,6 @@ type ClientWithResponsesInterface interface {
 
 	// GetNodeSystemPackageWithResponse request
 	GetNodeSystemPackageWithResponse(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*GetNodeSystemPackageResponse, error)
-
-	// GetNodeSystemPatchWithResponse request
-	GetNodeSystemPatchWithResponse(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*GetNodeSystemPatchResponse, error)
 
 	// GetNodeSystemPropertyWithResponse request
 	GetNodeSystemPropertyWithResponse(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*GetNodeSystemPropertyResponse, error)
@@ -13897,31 +13771,6 @@ func (r PostNodeActionPushDiskResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PostNodeActionPushDiskResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type PostNodeActionPushPatchResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *NodeActionAccepted
-	JSON401      *N401
-	JSON403      *N403
-	JSON500      *N500
-}
-
-// Status returns HTTPResponse.Status
-func (r PostNodeActionPushPatchResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PostNodeActionPushPatchResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -15804,32 +15653,6 @@ func (r GetNodeSystemPackageResponse) StatusCode() int {
 	return 0
 }
 
-type GetNodeSystemPatchResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *PatchList
-	JSON400      *N400
-	JSON401      *N401
-	JSON403      *N403
-	JSON500      *N500
-}
-
-// Status returns HTTPResponse.Status
-func (r GetNodeSystemPatchResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetNodeSystemPatchResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type GetNodeSystemPropertyResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -17266,15 +17089,6 @@ func (c *ClientWithResponses) PostNodeActionPushDiskWithResponse(ctx context.Con
 	return ParsePostNodeActionPushDiskResponse(rsp)
 }
 
-// PostNodeActionPushPatchWithResponse request returning *PostNodeActionPushPatchResponse
-func (c *ClientWithResponses) PostNodeActionPushPatchWithResponse(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushPatchParams, reqEditors ...RequestEditorFn) (*PostNodeActionPushPatchResponse, error) {
-	rsp, err := c.PostNodeActionPushPatch(ctx, nodename, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostNodeActionPushPatchResponse(rsp)
-}
-
 // PostNodeActionPushPkgWithResponse request returning *PostNodeActionPushPkgResponse
 func (c *ClientWithResponses) PostNodeActionPushPkgWithResponse(ctx context.Context, nodename InPathNodeName, params *PostNodeActionPushPkgParams, reqEditors ...RequestEditorFn) (*PostNodeActionPushPkgResponse, error) {
 	rsp, err := c.PostNodeActionPushPkg(ctx, nodename, params, reqEditors...)
@@ -17954,15 +17768,6 @@ func (c *ClientWithResponses) GetNodeSystemPackageWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseGetNodeSystemPackageResponse(rsp)
-}
-
-// GetNodeSystemPatchWithResponse request returning *GetNodeSystemPatchResponse
-func (c *ClientWithResponses) GetNodeSystemPatchWithResponse(ctx context.Context, nodename InPathNodeName, reqEditors ...RequestEditorFn) (*GetNodeSystemPatchResponse, error) {
-	rsp, err := c.GetNodeSystemPatch(ctx, nodename, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetNodeSystemPatchResponse(rsp)
 }
 
 // GetNodeSystemPropertyWithResponse request returning *GetNodeSystemPropertyResponse
@@ -19924,53 +19729,6 @@ func ParsePostNodeActionPushDiskResponse(rsp *http.Response) (*PostNodeActionPus
 	}
 
 	response := &PostNodeActionPushDiskResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest NodeActionAccepted
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest N401
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest N403
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest N500
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePostNodeActionPushPatchResponse parses an HTTP response from a PostNodeActionPushPatchWithResponse call
-func ParsePostNodeActionPushPatchResponse(rsp *http.Response) (*PostNodeActionPushPatchResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PostNodeActionPushPatchResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -23759,60 +23517,6 @@ func ParseGetNodeSystemPackageResponse(rsp *http.Response) (*GetNodeSystemPackag
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest PackageList
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest N400
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest N401
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest N403
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest N500
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetNodeSystemPatchResponse parses an HTTP response from a GetNodeSystemPatchWithResponse call
-func ParseGetNodeSystemPatchResponse(rsp *http.Response) (*GetNodeSystemPatchResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetNodeSystemPatchResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest PatchList
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
